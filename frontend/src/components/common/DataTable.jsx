@@ -53,7 +53,10 @@ export default function DataTable({
 }) {
   const [sort, setSort] = useState({ key: null, direction: "asc" });
   const { t } = useLanguage();
-  const sorted = useSortedData(data, sort, columns);
+
+  const safeData = Array.isArray(data) ? data : [];
+
+  const sorted = useSortedData(safeData, sort, columns);
   const displayMessage = emptyMessage || t("noData");
 
   const toggleSort = (key) =>

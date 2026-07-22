@@ -25,16 +25,16 @@ function StatsSection({ stats, t }) {
   return (
     <Row className="g-3 mb-4">
       <Col md={3}>
-        <StatCard label={t("totalPositions")} value={stats.positions} />
+        <StatCard label={t("totalPositions")} value={stats.positions || 0} />
       </Col>
       <Col md={3}>
-        <StatCard label={t("totalCandidates")} value={stats.candidates} />
+        <StatCard label={t("totalCandidates")} value={stats.candidates || 0} />
       </Col>
       <Col md={3}>
-        <StatCard label={t("totalCvs")} value={stats.cvs} />
+        <StatCard label={t("totalCvs")} value={stats.cvs || 0} />
       </Col>
       <Col md={3}>
-        <StatCard label={t("cvsLast24h")} value={stats.cvsLast24h} />
+        <StatCard label={t("cvsLast24h")} value={stats.cvsLast24h || 0} />
       </Col>
     </Row>
   );
@@ -87,6 +87,10 @@ export default function HomePage() {
 
   if (isLoading) return <LoadingSpinner />;
 
+  const safeLatest = Array.isArray(latest) ? latest : [];
+  const safePopular = Array.isArray(popular) ? popular : [];
+  const safeTags = Array.isArray(tags) ? tags : [];
+
   return (
     <div>
       <h1 className="mb-4">{t("appName")}</h1>
@@ -94,33 +98,25 @@ export default function HomePage() {
       <Row className="g-4 mb-4">
         <Col md={6}>
           <h4>{t("latestPositions")}</h4>
-          {latest ? (
-            <DataTable
-              columns={POSITION_COLUMNS(t)}
-              data={latest}
-              onRowClick={goToPosition}
-              emptyMessage={t("noData")}
-            />
-          ) : (
-            <LoadingSpinner />
-          )}
+          <DataTable
+            columns={POSITION_COLUMNS(t)}
+            data={safeLatest}
+            onRowClick={goToPosition}
+            emptyMessage={t("noData")}
+          />
         </Col>
         <Col md={6}>
           <h4>{t("popularPositions")}</h4>
-          {popular ? (
-            <DataTable
-              columns={POSITION_COLUMNS(t)}
-              data={popular}
-              onRowClick={goToPosition}
-              emptyMessage={t("noData")}
-            />
-          ) : (
-            <LoadingSpinner />
-          )}
+          <DataTable
+            columns={POSITION_COLUMNS(t)}
+            data={safePopular}
+            onRowClick={goToPosition}
+            emptyMessage={t("noData")}
+          />
         </Col>
       </Row>
       <h4>{t("tagCloud")}</h4>
-      <TagCloud tags={tags} onTagClick={goToTag} />
+      <TagCloud tags={safeTags} />
     </div>
   );
 }
