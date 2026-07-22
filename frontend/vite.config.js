@@ -7,12 +7,8 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 5173,
   },
-  preview: {
-    host: '0.0.0.0',
-    port: 5173,
-    allowedHosts: 'all', 
-  },
   build: {
     chunkSizeWarningLimit: 1000,
+    outDir: 'dist',
   },
 })
