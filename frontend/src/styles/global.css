@@ -658,6 +658,18 @@ textarea.form-control {
   }
 }
 
+.register-role-select .custom-select {
+  height: 32px !important;
+  min-height: 32px !important;
+}
+
+@media (max-width: 576px) {
+  .register-role-select .custom-select {
+    height: 37px !important;
+    min-height: 37px !important;
+  }
+}
+
 @media (max-width: 575.98px) {
   .header-brand {
     font-size: 0.875rem;

@@ -91,12 +91,13 @@ export default function RegisterPage() {
           </Form.Group>
           <Form.Group className="mb-3">
             <Form.Label>{t("role")}</Form.Label>
-            <CustomSelect
-              value={form.role}
-              options={roleOptions}
-              onChange={(role) => setForm((f) => ({ ...f, role }))}
-              style={{ height: "37px", minHeight: "37px" }}
-            />
+            <div className="register-role-select">
+              <CustomSelect
+                value={form.role}
+                options={roleOptions}
+                onChange={(role) => setForm((f) => ({ ...f, role }))}
+              />
+            </div>
           </Form.Group>
           <Form.Group className="mb-4">
             <Form.Label>{t("password")}</Form.Label>
