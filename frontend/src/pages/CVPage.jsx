@@ -256,14 +256,12 @@ export default function CVPage() {
   const [showAddAttribute, setShowAddAttribute] = useState(false);
   const [selectedAttributes, setSelectedAttributes] = useState(new Set());
   const [deleting, setDeleting] = useState(false);
-  const [loaded, setLoaded] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { translateError } = useErrorHandler();
 
   const load = useCallback(async () => {
-    if (loaded) return;
     try {
       const data = await CvsApi.get(id);
       setCv(data);
@@ -271,11 +269,10 @@ export default function CVPage() {
       setAllProjects(data.allProjects || []);
       setMatchesRules(data.matchesRules !== false);
       setSelectedAttributes(new Set());
-      setLoaded(true);
     } catch (error) {
       toast.error(translateError(error));
     }
-  }, [id, translateError, loaded]);
+  }, [id, translateError]);
 
   useEffect(() => {
     load();
@@ -292,7 +289,6 @@ export default function CVPage() {
       } else {
         toast.success(t("projectsUpdated"));
       }
-      setLoaded(false);
       await load();
     } catch (error) {
       toast.error(translateError(error));
@@ -305,7 +301,6 @@ export default function CVPage() {
     try {
       await CvsApi.publish(id);
       toast.success(t("cvPublished"));
-      setLoaded(false);
       await load();
     } catch (error) {
       toast.error(translateError(error));
@@ -327,7 +322,6 @@ export default function CVPage() {
       await CvsApi.addAttribute(id, attribute.id);
       setShowAddAttribute(false);
       toast.success(t("attributeAdded"));
-      setLoaded(false);
       await load();
     } catch (error) {
       toast.error(translateError(error));
@@ -362,7 +356,6 @@ export default function CVPage() {
       }
       setSelectedAttributes(new Set());
       toast.success(t("attributesDeleted", { count: selectedAttributes.size }));
-      setLoaded(false);
       await load();
     } catch (error) {
       toast.error(translateError(error));
