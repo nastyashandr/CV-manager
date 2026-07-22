@@ -70,9 +70,6 @@ export class CvsApi {
   static updateProjects(id, projectIds) {
     return client.put(`/cvs/${id}/projects`, { projectIds });
   }
-  static updateAbout(id, about) {
-    return client.put(`/cvs/${id}/about`, { about });
-  }
   static publish(id) {
     return client.post(`/cvs/${id}/publish`);
   }

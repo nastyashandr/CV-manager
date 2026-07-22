@@ -127,7 +127,6 @@ class CvController {
       positionId,
       status: 'draft',
       selectedProjects: [],
-      about: ''
     });
 
     await buildInitialCvAttributes(cv, req.user);

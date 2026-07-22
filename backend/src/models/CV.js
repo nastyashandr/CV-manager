@@ -1,4 +1,3 @@
-// backend/src/models/CV.js
 import { Model, DataTypes } from 'sequelize';
 import sequelize from '../config/database.js';
 
@@ -16,7 +15,6 @@ CV.init({
   likesCount: { type: DataTypes.INTEGER, defaultValue: 0 },
   selectedProjects: { type: DataTypes.JSONB, defaultValue: [] },
   snapshot: { type: DataTypes.JSONB, allowNull: true },
-  about: { type: DataTypes.TEXT, allowNull: true, defaultValue: '' },
 }, {
   sequelize,
   modelName: 'CV',
