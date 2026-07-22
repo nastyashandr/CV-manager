@@ -236,31 +236,60 @@ class CvBuilderService {
       selectedProjects: selectedProjectIds || [],
     };
   }
-
   static isComplete(rendered) {
-    if (!rendered || !rendered.attributes) return false;
+    console.log('========== CHECKING CV COMPLETENESS ==========');
+    console.log('CV ID:', rendered?.id);
+    console.log('Has attributes:', !!rendered?.attributes);
+    console.log('Attributes count:', rendered?.attributes?.length || 0);
+
+    if (!rendered || !rendered.attributes) {
+      console.log('❌ No rendered or attributes');
+      return false;
+    }
 
     const requiredAttrs = rendered.attributes.filter(a => a.required === true);
-    if (requiredAttrs.length === 0) return true;
+    console.log('Required attrs count:', requiredAttrs.length);
 
-    return requiredAttrs.every((a) => {
-      const val = a.value;
-      if (val === null || val === undefined || val === '') return false;
-
-      if (a.type === 'period') {
-        return val.start && val.start !== '' && val.end && val.end !== '';
-      }
-      if (a.type === 'select') {
-        return val !== '' && val !== null && val !== undefined;
-      }
-      if (a.type === 'boolean') {
-        return val === true || val === false;
-      }
-      if (a.type === 'number') {
-        return val !== '' && val !== null && val !== undefined;
-      }
+    if (requiredAttrs.length === 0) {
+      console.log('✅ No required attrs, complete!');
       return true;
-    });
+    }
+
+    let allComplete = true;
+    for (const a of requiredAttrs) {
+      const val = a.value;
+      console.log(`🔍 Checking ${a.name} (${a.type}):`, val);
+
+      let isValid = false;
+
+      if (val === null || val === undefined || val === '') {
+        console.log(`❌ ${a.name} is empty`);
+        isValid = false;
+      } else if (a.type === 'period') {
+        isValid = val.start && val.start !== '' && val.end && val.end !== '';
+        if (!isValid) console.log(`❌ ${a.name} period incomplete:`, val);
+      } else if (a.type === 'select') {
+        isValid = val !== '' && val !== null && val !== undefined;
+        if (!isValid) console.log(`❌ ${a.name} select empty`);
+      } else if (a.type === 'boolean') {
+        isValid = val === true || val === false;
+        if (!isValid) console.log(`❌ ${a.name} boolean invalid`);
+      } else if (a.type === 'number') {
+        isValid = val !== '' && val !== null && val !== undefined;
+        if (!isValid) console.log(`❌ ${a.name} number invalid`);
+      } else {
+        isValid = true;
+        console.log(`✅ ${a.name} OK`);
+      }
+
+      if (!isValid) {
+        allComplete = false;
+        console.log(`❌ ${a.name} FAILED`);
+      }
+    }
+
+    console.log('========== RESULT:', allComplete ? '✅ COMPLETE' : '❌ NOT COMPLETE');
+    return allComplete;
   }
 }
 
