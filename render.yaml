@@ -17,7 +17,7 @@ services:
           name: cv-db
           property: port
       - key: DB_NAME
-          fromDatabase:
+        fromDatabase:
           name: cv-db
           property: database
       - key: DB_USER
