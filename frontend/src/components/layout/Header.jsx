@@ -209,7 +209,7 @@ export default function Header() {
                 onChange={changeLocale}
                 wrapperClassName="header-lang-wrapper"
                 selectClassName="header-lang-select text-center"
-                style={{ textAlign: "center" }}
+                style={{ height: "40px", minHeight: "40px" }}
               />
             </div>
             <AuthActions

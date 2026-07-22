@@ -95,6 +95,7 @@ export default function RegisterPage() {
               value={form.role}
               options={roleOptions}
               onChange={(role) => setForm((f) => ({ ...f, role }))}
+              style={{ height: "37px", minHeight: "37px" }}
             />
           </Form.Group>
           <Form.Group className="mb-4">

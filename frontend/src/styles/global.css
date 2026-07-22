@@ -630,6 +630,32 @@ textarea.form-control {
   .header-search:focus {
     width: 180px;
   }
+
+  .header-overlay-content .btn,
+  .header-overlay-content .header-lang-wrapper {
+    height: 40px;
+    max-width: 200px;
+    width: 200px;
+    box-sizing: border-box;
+    flex-shrink: 0;
+  }
+
+  .header-overlay-content .header-lang-wrapper .custom-select {
+    height: 40px !important;
+    min-height: 40px !important;
+  }
+
+  .header-overlay-content .header-lang-wrapper .custom-select-value {
+    font-size: 14px;
+  }
+
+  .header-overlay-content .mobile-btn {
+    height: 40px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 @media (max-width: 575.98px) {
