@@ -9,6 +9,7 @@ function CustomSelect({
   wrapperClassName = "",
   disabled = false,
   style = {},
+  size = "default",
 }) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -20,6 +21,29 @@ function CustomSelect({
     setIsOpen(false);
   };
 
+  const getSizes = () => {
+    if (size === "small") {
+      return {
+        height: "31px",
+        minHeight: "31px",
+        padding: "2px 8px",
+        fontSize: "13px",
+        optionPadding: "6px 12px",
+        optionFontSize: "13px",
+      };
+    }
+    return {
+      height: "38px",
+      minHeight: "38px",
+      padding: "6px 12px",
+      fontSize: "14px",
+      optionPadding: "8px 16px",
+      optionFontSize: "14px",
+    };
+  };
+
+  const sizes = getSizes();
+
   return (
     <div className={`custom-select-wrapper ${wrapperClassName}`}>
       <div
@@ -28,10 +52,10 @@ function CustomSelect({
         style={{
           cursor: disabled ? "not-allowed" : "pointer",
           opacity: disabled ? 0.6 : 1,
-          height: "31px",
-          minHeight: "31px",
-          padding: "2px 8px",
-          fontSize: "13px",
+          height: sizes.height,
+          minHeight: sizes.minHeight,
+          padding: sizes.padding,
+          fontSize: sizes.fontSize,
           borderRadius: "4px",
           display: "flex",
           alignItems: "center",
@@ -49,7 +73,7 @@ function CustomSelect({
           className="custom-select-value"
           style={{
             flex: 1,
-            fontSize: "13px",
+            fontSize: sizes.fontSize,
             color: "var(--text-primary, #212529)",
             overflow: "hidden",
             textOverflow: "ellipsis",
@@ -96,9 +120,9 @@ function CustomSelect({
               className={`custom-select-option ${value === opt.value ? "selected" : ""}`}
               onClick={() => handleSelect(opt.value)}
               style={{
-                padding: "6px 12px",
+                padding: sizes.optionPadding,
                 cursor: "pointer",
-                fontSize: "13px",
+                fontSize: sizes.optionFontSize,
                 color: "var(--text-primary, #212529)",
                 transition: "background-color 0.15s ease, color 0.15s ease",
                 backgroundColor:

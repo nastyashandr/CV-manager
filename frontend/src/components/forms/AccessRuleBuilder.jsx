@@ -127,11 +127,11 @@ function ValueInput({ rule, attribute, onChange, hasError, t }) {
     ];
     return (
       <CustomSelect
+        size="small"
         value={rule.value || ""}
         options={options}
         onChange={setValue}
         wrapperClassName={invalidClass}
-        style={{ height: "31px", minHeight: "31px" }}
       />
     );
   }
@@ -188,11 +188,11 @@ function DefaultRuleRow({
       </Col>
       <Col xs={3}>
         <CustomSelect
+          size="small"
           value={rule.operator || "="}
           options={operatorOptions}
           onChange={(val) => onChange({ ...rule, operator: val })}
           wrapperClassName={hasError ? "is-invalid" : ""}
-          style={{ height: "31px", minHeight: "31px" }}
         />
       </Col>
       <Col xs={6}>
