@@ -93,6 +93,7 @@ function MeTab({ user, editable, onUpdated }) {
             {user.firstName} {user.lastName}
           </strong>
         </p>
+        <p className="text-muted">{user.email}</p>
         <p className="text-muted">{user.location}</p>
       </div>
     );
