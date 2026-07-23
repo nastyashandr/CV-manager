@@ -98,7 +98,6 @@ function PositionFormModal({ show, editingPosition, onHide, onSubmit, t }) {
       await onSubmit(data);
       onHide();
     } catch (error) {
-      // ошибка обрабатывается в onSubmit
     } finally {
       setIsSubmitting(false);
     }
@@ -158,8 +157,16 @@ export default function PositionsPage() {
     setShowForm(true);
   };
 
-  const openEditForm = (position) => {
-    setEditingPosition(position);
+  const handleRowClick = (row) => {
+    if (canManage) {
+      navigate(`/positions/${row.id}`);
+    } else {
+      navigate(`/positions/${row.id}`);
+    }
+  };
+
+  const handleEditClick = (row) => {
+    setEditingPosition(row);
     setShowForm(true);
   };
 
@@ -216,13 +223,7 @@ export default function PositionsPage() {
         <DataTable
           columns={columns}
           data={visible}
-          onRowClick={(row) => {
-            if (canManage) {
-              openEditForm(row);
-            } else {
-              navigate(`/positions/${row.id}`);
-            }
-          }}
+          onRowClick={handleRowClick}
           selectable={canManage}
           selectedIds={selected}
           onSelectionChange={setSelected}
