@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import Button from "react-bootstrap/Button";
 import Card from "react-bootstrap/Card";
@@ -387,7 +387,14 @@ export default function CVPage() {
     <div className="cv-page">
       <div className="d-flex justify-content-between align-items-start mb-4">
         <div>
-          <h1>{fullName(cv.candidate)}</h1>
+          <Link
+            to={`/profile/${cv.candidate.id}`}
+            className="text-decoration-none"
+          >
+            <h1 style={{ color: "var(--text-primary)" }}>
+              {fullName(cv.candidate)}
+            </h1>
+          </Link>
           <div className="d-flex gap-2 align-items-center">
             <Badge bg={cv.status === "published" ? "success" : "secondary"}>
               {cv.status === "published" ? t("published") : t("draft")}
