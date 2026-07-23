@@ -68,7 +68,15 @@ function TagFilterBanner({ tag, onClear, t }) {
   );
 }
 
-function PositionsToolbar({ count, onCreate, onDuplicate, onDelete, t }) {
+function PositionsToolbar({
+  count,
+  onCreate,
+  onDuplicate,
+  onDelete,
+  onEdit,
+  selectedCount,
+  t,
+}) {
   return (
     <Toolbar>
       <Button variant="primary" onClick={onCreate}>
@@ -76,13 +84,20 @@ function PositionsToolbar({ count, onCreate, onDuplicate, onDelete, t }) {
       </Button>
       <Button
         variant="outline-secondary"
-        disabled={!count}
+        disabled={count === 0}
         onClick={onDuplicate}
       >
         {t("duplicate")}
       </Button>
-      <Button variant="outline-danger" disabled={!count} onClick={onDelete}>
+      <Button
+        variant="outline-danger"
+        disabled={count === 0}
+        onClick={onDelete}
+      >
         {t("delete")}
+      </Button>
+      <Button variant="outline-primary" disabled={count !== 1} onClick={onEdit}>
+        {t("edit")}
       </Button>
     </Toolbar>
   );
@@ -157,17 +172,18 @@ export default function PositionsPage() {
     setShowForm(true);
   };
 
-  const handleRowClick = (row) => {
-    if (canManage) {
-      navigate(`/positions/${row.id}`);
-    } else {
-      navigate(`/positions/${row.id}`);
+  const openEditForm = () => {
+    if (selected.size !== 1) return;
+    const id = Array.from(selected)[0];
+    const position = positions?.find((p) => p.id === id);
+    if (position) {
+      setEditingPosition(position);
+      setShowForm(true);
     }
   };
 
-  const handleEditClick = (row) => {
-    setEditingPosition(row);
-    setShowForm(true);
+  const handleRowClick = (row) => {
+    navigate(`/positions/${row.id}`);
   };
 
   const handleSubmit = async (data) => {
@@ -183,6 +199,7 @@ export default function PositionsPage() {
         toast.success(t("positionCreated"));
       }
       await load();
+      setSelected(new Set());
     } catch (error) {
       toast.error(translateError(error));
       throw error;
@@ -212,9 +229,11 @@ export default function PositionsPage() {
       {canManage && (
         <PositionsToolbar
           count={count}
+          selectedCount={count}
           onCreate={openCreateForm}
           onDuplicate={() => duplicateSelected(selected)}
           onDelete={() => deleteSelected(selected)}
+          onEdit={openEditForm}
           t={t}
         />
       )}
