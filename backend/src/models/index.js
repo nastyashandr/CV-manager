@@ -11,6 +11,7 @@ import CV from './CV.js';
 import Like from './Like.js';
 import DiscussionPost from './DiscussionPost.js';
 import CVAttribute from './CVAttribute.js';
+import SalesforceSync from './SalesforceSync.js';
 
 class AssociationBuilder {
   static build() {
@@ -55,6 +56,9 @@ class AssociationBuilder {
 
     Position.hasMany(DiscussionPost, { foreignKey: 'positionId', as: 'posts', onDelete: 'CASCADE' });
     DiscussionPost.belongsTo(User, { foreignKey: 'authorId', as: 'author' });
+
+    User.hasOne(SalesforceSync, { foreignKey: 'userId', as: 'salesforceSync', onDelete: 'CASCADE' });
+    SalesforceSync.belongsTo(User, { foreignKey: 'userId', as: 'user' });
   }
 }
 
@@ -74,4 +78,5 @@ export {
   Like,
   DiscussionPost,
   CVAttribute,
+  SalesforceSync,
 };

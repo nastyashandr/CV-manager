@@ -27,6 +27,7 @@ import AttributeValueDisplay from "../components/common/AttributeValueDisplay.js
 import ImageDropzone from "../components/common/ImageDropzone.jsx";
 import ProjectForm from "../components/forms/ProjectForm.jsx";
 import MarkdownView from "../components/common/MarkdownView.jsx";
+import SalesforceModal from "../components/modals/SalesforceModal.jsx";
 import { DateFormatter } from "../utils/formatters.js";
 
 function toProfileForm(user) {
@@ -40,6 +41,7 @@ function toProfileForm(user) {
 
 function MeTab({ user, editable, onUpdated }) {
   const [form, setForm] = useState(toProfileForm(user));
+  const [showSalesforceModal, setShowSalesforceModal] = useState(false);
   const { t } = useLanguage();
   const { translateError } = useErrorHandler();
 
@@ -100,37 +102,53 @@ function MeTab({ user, editable, onUpdated }) {
   }
 
   return (
-    <Row className="g-3">
-      <Col md={4}>
-        <ImageDropzone
-          value={form.photoUrl}
-          onChange={(v) => handleChange("photoUrl", v)}
-        />
-      </Col>
-      <Col md={8}>
-        <Form.Group className="mb-3">
-          <Form.Label>{t("firstName")}</Form.Label>
-          <Form.Control
-            value={form.firstName || ""}
-            onChange={(e) => handleChange("firstName", e.target.value)}
+    <>
+      <Row className="g-3">
+        <Col md={4}>
+          <ImageDropzone
+            value={form.photoUrl}
+            onChange={(v) => handleChange("photoUrl", v)}
           />
-        </Form.Group>
-        <Form.Group className="mb-3">
-          <Form.Label>{t("lastName")}</Form.Label>
-          <Form.Control
-            value={form.lastName || ""}
-            onChange={(e) => handleChange("lastName", e.target.value)}
-          />
-        </Form.Group>
-        <Form.Group className="mb-3">
-          <Form.Label>{t("location")}</Form.Label>
-          <Form.Control
-            value={form.location || ""}
-            onChange={(e) => handleChange("location", e.target.value)}
-          />
-        </Form.Group>
-      </Col>
-    </Row>
+        </Col>
+        <Col md={8}>
+          <Form.Group className="mb-3">
+            <Form.Label>{t("firstName")}</Form.Label>
+            <Form.Control
+              value={form.firstName || ""}
+              onChange={(e) => handleChange("firstName", e.target.value)}
+            />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>{t("lastName")}</Form.Label>
+            <Form.Control
+              value={form.lastName || ""}
+              onChange={(e) => handleChange("lastName", e.target.value)}
+            />
+          </Form.Group>
+          <Form.Group className="mb-3">
+            <Form.Label>{t("location")}</Form.Label>
+            <Form.Control
+              value={form.location || ""}
+              onChange={(e) => handleChange("location", e.target.value)}
+            />
+          </Form.Group>
+        </Col>
+      </Row>
+      <div className="mt-3">
+        <hr />
+        <Button
+          variant="outline-primary"
+          onClick={() => setShowSalesforceModal(true)}
+          className="d-flex align-items-center gap-2"
+        >
+          <span>☁️</span> {t("exportToSalesforce")}
+        </Button>
+      </div>
+      <SalesforceModal
+        show={showSalesforceModal}
+        onHide={() => setShowSalesforceModal(false)}
+      />
+    </>
   );
 }
 

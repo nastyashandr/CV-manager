@@ -96,3 +96,17 @@ export class SearchApi {
     return client.get('/search', { q });
   }
 }
+
+export class SalesforceApi {
+  static getStatus() {
+    return client.get('/salesforce/status');
+  }
+
+  static sync(data) {
+    return client.post('/salesforce/sync', data);
+  }
+
+  static deactivate() {
+    return client.delete('/salesforce/sync');
+  }
+}

@@ -18,6 +18,7 @@ import cvRoutes from './routes/cvs.js';
 import discussionRoutes from './routes/discussions.js';
 import statsRoutes from './routes/stats.js';
 import searchRoutes from './routes/search.js';
+import salesforceRoutes from './routes/salesforce.js';
 
 class Application {
   constructor() {
@@ -50,6 +51,7 @@ class Application {
     this.app.use('/api/discussions', discussionRoutes);
     this.app.use('/api/stats', statsRoutes);
     this.app.use('/api/search', searchRoutes);
+    this.app.use('/api/salesforce', salesforceRoutes);
     this.app.use(errorHandler);
   }
 
