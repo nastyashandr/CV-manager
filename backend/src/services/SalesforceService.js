@@ -1,214 +1,130 @@
-import axios from 'axios';
-import { SalesforceSync } from '../models/index.js';
+const API_VERSION = 'v59.0';
 
 class SalesforceService {
-  constructor() {
-    this.instanceUrl = process.env.SALESFORCE_INSTANCE_URL;
-    this.clientId = process.env.SALESFORCE_CLIENT_ID;
-    this.clientSecret = process.env.SALESFORCE_CLIENT_SECRET;
-    this.username = process.env.SALESFORCE_USERNAME;
-    this.password = process.env.SALESFORCE_PASSWORD;
-    this.accessToken = null;
-    this.tokenExpiry = null;
+  static tokenCache = null;
+
+  static isConfigured() {
+    return Boolean(
+      process.env.SF_LOGIN_URL &&
+      process.env.SF_CLIENT_ID &&
+      process.env.SF_CLIENT_SECRET
+    );
   }
 
-  async getAccessToken() {
-    if (this.accessToken && this.tokenExpiry && Date.now() < this.tokenExpiry) {
-      return this.accessToken;
+  static async authenticate() {
+    if (SalesforceService.tokenCache && SalesforceService.tokenCache.expiresAt > Date.now()) {
+      return SalesforceService.tokenCache;
     }
 
-    try {
-      const response = await axios.post(
-        'https://login.salesforce.com/services/oauth2/token',
-        new URLSearchParams({
-          grant_type: 'password',
-          client_id: this.clientId,
-          client_secret: this.clientSecret,
-          username: this.username,
-          password: this.password
-        }),
-        {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-          }
-        }
-      );
-
-      this.accessToken = response.data.access_token;
-      this.instanceUrl = response.data.instance_url;
-      this.tokenExpiry = Date.now() + 50 * 60 * 1000;
-
-      console.log('Salesforce access token obtained');
-      return this.accessToken;
-    } catch (error) {
-      console.error('Failed to get Salesforce access token:', error.response?.data || error.message);
-      throw new Error('Failed to authenticate with Salesforce');
+    if (!SalesforceService.isConfigured()) {
+      throw new Error('Salesforce integration is not configured (missing SF_* environment variables)');
     }
-  }
 
-  async makeRequest(method, endpoint, data = null) {
-    const token = await this.getAccessToken();
+    const loginUrl = process.env.SF_LOGIN_URL;
+    const params = new URLSearchParams({
+      grant_type: 'client_credentials',
+      client_id: process.env.SF_CLIENT_ID,
+      client_secret: process.env.SF_CLIENT_SECRET,
+    });
 
-    try {
-      const response = await axios({
-        method,
-        url: `${this.instanceUrl}${endpoint}`,
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        data
-      });
-      return response.data;
-    } catch (error) {
-      console.error(`Salesforce API error:`, error.response?.data || error.message);
-      throw new Error(`Salesforce API error: ${error.response?.data?.[0]?.message || error.message}`);
+    const response = await fetch(`${loginUrl}/services/oauth2/token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params,
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      throw new Error(`Salesforce authentication failed: ${data.error_description || data.error || response.statusText}`);
     }
+
+    SalesforceService.tokenCache = {
+      accessToken: data.access_token,
+      instanceUrl: data.instance_url,
+      expiresAt: Date.now() + 25 * 60 * 1000,
+    };
+
+    return SalesforceService.tokenCache;
   }
 
-  async createAccount(companyName, description = '') {
-    const accountData = {
-      Name: companyName,
-      Description: description || 'Created from CV Management System',
-      Type: 'Customer',
-      Industry: 'Technology'
-    };
+  static async request(method, path, body) {
+    const { accessToken, instanceUrl } = await SalesforceService.authenticate();
 
-    const result = await this.makeRequest('POST', '/services/data/v58.0/sobjects/Account', accountData);
-    return {
-      id: result.id,
-      success: result.success
-    };
+    const response = await fetch(`${instanceUrl}${path}`, {
+      method,
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: body ? JSON.stringify(body) : undefined,
+    });
+
+    if (response.status === 204) return null;
+
+    const raw = await response.text();
+    const data = raw ? JSON.parse(raw) : null;
+
+    if (!response.ok) {
+      const message = Array.isArray(data)
+        ? data.map((e) => e.message).join('; ')
+        : response.statusText;
+      throw new Error(`Salesforce API error (${response.status}): ${message}`);
+    }
+
+    return data;
   }
 
-  async createContact(contactData, accountId) {
-    const contact = {
-      FirstName: contactData.firstName,
-      LastName: contactData.lastName,
-      Email: contactData.email,
-      Phone: contactData.phone || '',
-      Title: contactData.title || '',
-      AccountId: accountId,
-      Description: contactData.interests || '',
-      LeadSource: 'CV Management System'
-    };
-
-    const result = await this.makeRequest('POST', '/services/data/v58.0/sobjects/Contact', contact);
-    return {
-      id: result.id,
-      success: result.success
-    };
+  static async createAccount(name) {
+    const result = await SalesforceService.request(
+      'POST',
+      `/services/data/${API_VERSION}/sobjects/Account/`,
+      { Name: name }
+    );
+    return result.id;
   }
 
-  async updateContact(contactId, data) {
-    const contact = {
-      FirstName: data.firstName,
-      LastName: data.lastName,
-      Email: data.email,
-      Phone: data.phone || '',
-      Title: data.title || '',
-      Description: data.interests || ''
-    };
-
-    await this.makeRequest('PATCH', `/services/data/v58.0/sobjects/Contact/${contactId}`, contact);
-    return { success: true };
-  }
-
-  async syncUser(user, additionalData) {
-    try {
-      let sync = await SalesforceSync.findOne({
-        where: { userId: user.id, isActive: true }
-      });
-
-      const companyName = additionalData.company || `${user.firstName} ${user.lastName}'s Company`;
-      const contactData = {
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        phone: additionalData.phone || '',
-        title: additionalData.title || user.role || 'Candidate',
-        interests: additionalData.interests || ''
-      };
-
-      if (!sync) {
-        console.log(`Creating new Salesforce records for user ${user.email}`);
-
-        const account = await this.createAccount(companyName);
-        const contact = await this.createContact(contactData, account.id);
-
-        sync = await SalesforceSync.create({
-          userId: user.id,
-          accountId: account.id,
-          contactId: contact.id,
-          syncedAt: new Date(),
-          additionalData: {
-            company: companyName,
-            ...additionalData
-          }
-        });
-
-        return {
-          success: true,
-          accountId: account.id,
-          contactId: contact.id,
-          action: 'created'
-        };
-      } else {
-        console.log(`Updating Salesforce Contact ${sync.contactId} for user ${user.email}`);
-
-        await this.updateContact(sync.contactId, contactData);
-
-        sync.syncedAt = new Date();
-        sync.additionalData = {
-          ...sync.additionalData,
-          ...additionalData
-        };
-        await sync.save();
-
-        return {
-          success: true,
-          accountId: sync.accountId,
-          contactId: sync.contactId,
-          action: 'updated'
-        };
+  static async createContact({ accountId, firstName, lastName, email, phone, title, city, country, description }) {
+    const result = await SalesforceService.request(
+      'POST',
+      `/services/data/${API_VERSION}/sobjects/Contact/`,
+      {
+        AccountId: accountId,
+        FirstName: firstName || undefined,
+        LastName: lastName || 'N/A',
+        Email: email || undefined,
+        Phone: phone || undefined,
+        Title: title || undefined,
+        MailingCity: city || undefined,
+        MailingCountry: country || undefined,
+        Description: description || undefined,
       }
-    } catch (error) {
-      console.error('Salesforce sync failed:', error);
-      throw error;
-    }
+    );
+    return result.id;
   }
 
-  async getSyncStatus(userId) {
-    const sync = await SalesforceSync.findOne({
-      where: { userId, isActive: true }
+  static async syncUserProfile(user, formData = {}) {
+    const companyName =
+      formData.companyName?.trim() ||
+      `${user.firstName} ${user.lastName}`.trim() ||
+      user.email;
+
+    const accountId = await SalesforceService.createAccount(companyName);
+
+    const contactId = await SalesforceService.createContact({
+      accountId,
+      firstName: user.firstName,
+      lastName: user.lastName || user.email.split('@')[0],
+      email: user.email,
+      phone: formData.phone,
+      title: formData.jobTitle,
+      city: formData.city || user.location,
+      country: formData.country,
+      description: formData.notes,
     });
 
-    if (!sync) {
-      return { synced: false };
-    }
-
-    return {
-      synced: true,
-      accountId: sync.accountId,
-      contactId: sync.contactId,
-      syncedAt: sync.syncedAt,
-      additionalData: sync.additionalData
-    };
-  }
-
-  async deactivateSync(userId) {
-    const sync = await SalesforceSync.findOne({
-      where: { userId, isActive: true }
-    });
-
-    if (sync) {
-      sync.isActive = false;
-      await sync.save();
-      return { success: true };
-    }
-
-    return { success: false, message: 'Sync not found' };
+    return { accountId, contactId };
   }
 }
 
-export default new SalesforceService();
+export default SalesforceService;

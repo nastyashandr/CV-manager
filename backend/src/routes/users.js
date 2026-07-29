@@ -13,6 +13,7 @@ router.delete('/:id', auth, AuthMiddleware.allow('admin'), UserController.delete
 
 router.get('/:id', AuthMiddleware.optional(), UserController.getProfile);
 router.put('/:id', auth, UserController.updateMe);
+router.post('/:id/salesforce', auth, UserController.syncSalesforce);
 
 router.post('/:id/attributes', auth, UserController.addAttribute);
 router.delete('/:id/attributes/:attributeId', auth, UserController.removeAttribute);

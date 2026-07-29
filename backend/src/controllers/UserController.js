@@ -3,6 +3,7 @@ import ApiError from '../utils/ApiError.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import ProfileService from '../services/ProfileService.js';
 import AccessRuleService from '../services/AccessRuleService.js';
+import SalesforceService from '../services/SalesforceService.js';
 
 class UserController {
   static async assertOwnerOrAdmin(req, targetId) {
@@ -63,6 +64,49 @@ class UserController {
 
     await UserController.revalidateUserCVs(req.params.id);
     res.json(user.toPublicJSON());
+  });
+
+  syncSalesforce = asyncHandler(async (req, res) => {
+    await UserController.assertOwnerOrAdmin(req, req.params.id);
+    const user = await User.findByPk(req.params.id);
+    if (!user) throw ApiError.notFound('User not found');
+
+    const { companyName, phone, jobTitle, city, country, notes } = req.body;
+
+    let result;
+    try {
+      result = await SalesforceService.syncUserProfile(user, {
+        companyName,
+        phone,
+        jobTitle,
+        city,
+        country,
+        notes,
+      });
+    } catch (err) {
+      throw new ApiError(502, `Salesforce sync failed: ${err.message}`);
+    }
+
+    user.salesforceAccountId = result.accountId;
+    user.salesforceContactId = result.contactId;
+    user.salesforceSyncedAt = new Date();
+    await user.save();
+
+    res.status(201).json({
+      salesforceAccountId: user.salesforceAccountId,
+      salesforceContactId: user.salesforceContactId,
+      salesforceSyncedAt: user.salesforceSyncedAt,
+    });
+  });
+
+  projectTags = asyncHandler(async (req, res) => {
+    const [projects, positions] = await Promise.all([
+      Project.findAll({ attributes: ['tags'] }),
+      Position.findAll({ attributes: ['projectTags'] }),
+    ]);
+    const set = new Set(projects.flatMap((p) => p.tags || []));
+    positions.forEach((p) => (p.projectTags || []).forEach((t) => set.add(t)));
+    res.json([...set].sort());
   });
 
   addAttribute = asyncHandler(async (req, res) => {
@@ -147,16 +191,6 @@ class UserController {
     await UserController.assertOwnerOrAdmin(req, req.params.id);
     await Project.destroy({ where: { id: req.params.projectId, userId: req.params.id } });
     res.status(204).end();
-  });
-
-  projectTags = asyncHandler(async (req, res) => {
-    const [projects, positions] = await Promise.all([
-      Project.findAll({ attributes: ['tags'] }),
-      Position.findAll({ attributes: ['projectTags'] }),
-    ]);
-    const set = new Set(projects.flatMap((p) => p.tags || []));
-    positions.forEach((p) => (p.projectTags || []).forEach((t) => set.add(t)));
-    res.json([...set].sort());
   });
 
   listUsers = asyncHandler(async (req, res) => {

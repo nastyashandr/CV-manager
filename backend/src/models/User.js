@@ -25,6 +25,9 @@ User.init({
   theme: { type: DataTypes.STRING, defaultValue: 'light' },
   isBlocked: { type: DataTypes.BOOLEAN, defaultValue: false },
   version: { type: DataTypes.INTEGER, defaultValue: 1 },
+  salesforceAccountId: { type: DataTypes.STRING, allowNull: true },
+  salesforceContactId: { type: DataTypes.STRING, allowNull: true },
+  salesforceSyncedAt: { type: DataTypes.DATE, allowNull: true },
 }, { sequelize, modelName: 'User', tableName: 'users', timestamps: true });
 
 export default User;

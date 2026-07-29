@@ -48,6 +48,7 @@ export class UsersApi {
   static updateProject(id, projectId, data) { return client.put(`/users/${id}/projects/${projectId}`, data); }
   static deleteProject(id, projectId) { return client.delete(`/users/${id}/projects/${projectId}`); }
   static tags() { return client.get('/users/tags'); }
+  static syncSalesforce(id, data) { return client.post(`/users/${id}/salesforce`, data); }
   static listAll() { return client.get('/users'); }
   static setRole(id, role) { return client.put(`/users/${id}/role`, { role }); }
   static setBlocked(id, isBlocked) { return client.put(`/users/${id}/blocked`, { isBlocked }); }
@@ -94,19 +95,5 @@ export class StatsApi {
 export class SearchApi {
   static search(q) {
     return client.get('/search', { q });
-  }
-}
-
-export class SalesforceApi {
-  static getStatus() {
-    return client.get('/salesforce/status');
-  }
-
-  static sync(data) {
-    return client.post('/salesforce/sync', data);
-  }
-
-  static deactivate() {
-    return client.delete('/salesforce/sync');
   }
 }

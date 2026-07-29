@@ -26,8 +26,8 @@ import AttributeValueInput from "../components/common/AttributeValueInput.jsx";
 import AttributeValueDisplay from "../components/common/AttributeValueDisplay.jsx";
 import ImageDropzone from "../components/common/ImageDropzone.jsx";
 import ProjectForm from "../components/forms/ProjectForm.jsx";
+import SalesforceForm from "../components/forms/SalesforceForm.jsx";
 import MarkdownView from "../components/common/MarkdownView.jsx";
-import SalesforceModal from "../components/modals/SalesforceModal.jsx";
 import { DateFormatter } from "../utils/formatters.js";
 
 function toProfileForm(user) {
@@ -41,7 +41,6 @@ function toProfileForm(user) {
 
 function MeTab({ user, editable, onUpdated }) {
   const [form, setForm] = useState(toProfileForm(user));
-  const [showSalesforceModal, setShowSalesforceModal] = useState(false);
   const { t } = useLanguage();
   const { translateError } = useErrorHandler();
 
@@ -102,53 +101,37 @@ function MeTab({ user, editable, onUpdated }) {
   }
 
   return (
-    <>
-      <Row className="g-3">
-        <Col md={4}>
-          <ImageDropzone
-            value={form.photoUrl}
-            onChange={(v) => handleChange("photoUrl", v)}
+    <Row className="g-3">
+      <Col md={4}>
+        <ImageDropzone
+          value={form.photoUrl}
+          onChange={(v) => handleChange("photoUrl", v)}
+        />
+      </Col>
+      <Col md={8}>
+        <Form.Group className="mb-3">
+          <Form.Label>{t("firstName")}</Form.Label>
+          <Form.Control
+            value={form.firstName || ""}
+            onChange={(e) => handleChange("firstName", e.target.value)}
           />
-        </Col>
-        <Col md={8}>
-          <Form.Group className="mb-3">
-            <Form.Label>{t("firstName")}</Form.Label>
-            <Form.Control
-              value={form.firstName || ""}
-              onChange={(e) => handleChange("firstName", e.target.value)}
-            />
-          </Form.Group>
-          <Form.Group className="mb-3">
-            <Form.Label>{t("lastName")}</Form.Label>
-            <Form.Control
-              value={form.lastName || ""}
-              onChange={(e) => handleChange("lastName", e.target.value)}
-            />
-          </Form.Group>
-          <Form.Group className="mb-3">
-            <Form.Label>{t("location")}</Form.Label>
-            <Form.Control
-              value={form.location || ""}
-              onChange={(e) => handleChange("location", e.target.value)}
-            />
-          </Form.Group>
-        </Col>
-      </Row>
-      <div className="mt-3">
-        <hr />
-        <Button
-          variant="outline-primary"
-          onClick={() => setShowSalesforceModal(true)}
-          className="d-flex align-items-center gap-2"
-        >
-          <span>☁️</span> {t("exportToSalesforce")}
-        </Button>
-      </div>
-      <SalesforceModal
-        show={showSalesforceModal}
-        onHide={() => setShowSalesforceModal(false)}
-      />
-    </>
+        </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Label>{t("lastName")}</Form.Label>
+          <Form.Control
+            value={form.lastName || ""}
+            onChange={(e) => handleChange("lastName", e.target.value)}
+          />
+        </Form.Group>
+        <Form.Group className="mb-3">
+          <Form.Label>{t("location")}</Form.Label>
+          <Form.Control
+            value={form.location || ""}
+            onChange={(e) => handleChange("location", e.target.value)}
+          />
+        </Form.Group>
+      </Col>
+    </Row>
   );
 }
 
@@ -665,6 +648,65 @@ function AttributesTab({ userId }) {
   );
 }
 
+function SalesforceTab({ user, onUpdated }) {
+  const [showForm, setShowForm] = useState(false);
+  const { t } = useLanguage();
+  const { translateError } = useErrorHandler();
+
+  const synced = Boolean(user.salesforceContactId);
+
+  const handleSubmit = async (formData) => {
+    try {
+      const result = await UsersApi.syncSalesforce(user.id, formData);
+      onUpdated({ ...user, ...result });
+      toast.success(t("salesforceSyncSuccess"));
+    } catch (err) {
+      toast.error(translateError(err));
+      throw err;
+    }
+  };
+
+  return (
+    <div>
+      {synced ? (
+        <div>
+          <p className="text-success mb-1">{t("salesforceSynced")}</p>
+          <p className="text-muted small mb-1">
+            {t("salesforceAccountId")}: {user.salesforceAccountId}
+          </p>
+          <p className="text-muted small mb-3">
+            {t("salesforceContactId")}: {user.salesforceContactId}
+          </p>
+          <p className="text-muted small mb-3">
+            {t("salesforceSyncedAt")}:{" "}
+            {user.salesforceSyncedAt
+              ? new Date(user.salesforceSyncedAt).toLocaleString()
+              : ""}
+          </p>
+          <Button variant="outline-primary" onClick={() => setShowForm(true)}>
+            {t("salesforceResync")}
+          </Button>
+        </div>
+      ) : (
+        <div>
+          <p className="text-muted">{t("salesforceNotSynced")}</p>
+          <Button variant="primary" onClick={() => setShowForm(true)}>
+            {t("salesforceSyncButton")}
+          </Button>
+        </div>
+      )}
+
+      {showForm && (
+        <SalesforceForm
+          show
+          onHide={() => setShowForm(false)}
+          onSubmit={handleSubmit}
+        />
+      )}
+    </div>
+  );
+}
+
 export default function ProfilePage() {
   const { id } = useParams();
   const [data, setData] = useState(null);
@@ -766,6 +808,12 @@ export default function ProfilePage() {
         {isRecruiter && (
           <Tab eventKey="myAttributes" title={t("myAttributes")}>
             <AttributesTab userId={user.id} />
+          </Tab>
+        )}
+
+        {isOwnerView && (
+          <Tab eventKey="salesforce" title={t("salesforce")}>
+            <SalesforceTab user={user} onUpdated={onUserUpdated} />
           </Tab>
         )}
       </Tabs>
