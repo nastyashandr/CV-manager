@@ -85,6 +85,10 @@ class SalesforceService {
   }
 
   static async createContact({ accountId, firstName, lastName, email, phone, title, city, country, description }) {
+    const notesParts = [];
+    if (country) notesParts.push(`Country: ${country}`);
+    if (description) notesParts.push(description);
+
     const result = await SalesforceService.request(
       'POST',
       `/services/data/${API_VERSION}/sobjects/Contact/`,
@@ -96,8 +100,7 @@ class SalesforceService {
         Phone: phone || undefined,
         Title: title || undefined,
         MailingCity: city || undefined,
-        MailingCountry: country || undefined,
-        Description: description || undefined,
+        Description: notesParts.join('\n') || undefined,
       }
     );
     return result.id;
