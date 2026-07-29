@@ -61,7 +61,7 @@ class SalesforceService {
       });
       return response.data;
     } catch (error) {
-      console.error(`Salesforce API error (${method} ${endpoint}):`, error.response?.data || error.message);
+      console.error(`Salesforce API error:`, error.response?.data || error.message);
       throw new Error(`Salesforce API error: ${error.response?.data?.[0]?.message || error.message}`);
     }
   }
@@ -99,7 +99,7 @@ class SalesforceService {
       success: result.success
     };
   }
-  
+
   async updateContact(contactId, data) {
     const contact = {
       FirstName: data.firstName,
@@ -133,7 +133,7 @@ class SalesforceService {
       if (!sync) {
         console.log(`Creating new Salesforce records for user ${user.email}`);
 
-        const account = await this.createAccount(companyName, `Account created for ${user.firstName} ${user.lastName}`);
+        const account = await this.createAccount(companyName);
         const contact = await this.createContact(contactData, account.id);
 
         sync = await SalesforceSync.create({
@@ -154,7 +154,7 @@ class SalesforceService {
           action: 'created'
         };
       } else {
-        console.log(`🔄 Updating Salesforce Contact ${sync.contactId} for user ${user.email}`);
+        console.log(`Updating Salesforce Contact ${sync.contactId} for user ${user.email}`);
 
         await this.updateContact(sync.contactId, contactData);
 
