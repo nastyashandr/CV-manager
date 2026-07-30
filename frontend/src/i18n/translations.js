@@ -392,8 +392,10 @@ export const translations = {
     salesforceContactId: 'Salesforce Contact ID',
     salesforceSyncedAt: 'Last synced',
     failedSalesforceSync: 'Failed to sync to Salesforce',
+    salesforceInvalidPhone: 'Enter a valid phone number (digits, spaces, +, -, ( ) only)',
   },
   ru: {
+    salesforceInvalidPhone: 'Введите корректный номер телефона (цифры, пробелы, +, -, ( ) )',
     'Cannot change "{name}" because it is used in access rules.': 'Нельзя изменить "{name}", потому что он используется в правилах доступа.',
     appName: 'Резюме',
     home: 'Главная',

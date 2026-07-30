@@ -71,17 +71,18 @@ class UserController {
     const user = await User.findByPk(req.params.id);
     if (!user) throw ApiError.notFound('User not found');
 
+    const trim = (v) => (typeof v === 'string' ? v.trim().slice(0, 500) : v);
     const { companyName, phone, jobTitle, city, country, notes } = req.body;
 
     let result;
     try {
       result = await SalesforceService.syncUserProfile(user, {
-        companyName,
-        phone,
-        jobTitle,
-        city,
-        country,
-        notes,
+        companyName: trim(companyName),
+        phone: trim(phone),
+        jobTitle: trim(jobTitle),
+        city: trim(city),
+        country: trim(country),
+        notes: trim(notes),
       });
     } catch (err) {
       throw new ApiError(502, `Salesforce sync failed: ${err.message}`);

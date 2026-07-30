@@ -84,26 +84,48 @@ class SalesforceService {
     return result.id;
   }
 
-  static async createContact({ accountId, firstName, lastName, email, phone, title, city, country, description }) {
+  static async updateAccount(accountId, name) {
+    await SalesforceService.request(
+      'PATCH',
+      `/services/data/${API_VERSION}/sobjects/Account/${accountId}`,
+      { Name: name }
+    );
+    return accountId;
+  }
+
+  static buildContactPayload({ accountId, firstName, lastName, email, phone, title, city, country, description }) {
     const notesParts = [];
     if (country) notesParts.push(`Country: ${country}`);
     if (description) notesParts.push(description);
 
+    return {
+      AccountId: accountId,
+      FirstName: firstName || undefined,
+      LastName: lastName || 'N/A',
+      Email: email || undefined,
+      Phone: phone || undefined,
+      Title: title || undefined,
+      MailingCity: city || undefined,
+      Description: notesParts.join('\n') || undefined,
+    };
+  }
+
+  static async createContact(fields) {
     const result = await SalesforceService.request(
       'POST',
       `/services/data/${API_VERSION}/sobjects/Contact/`,
-      {
-        AccountId: accountId,
-        FirstName: firstName || undefined,
-        LastName: lastName || 'N/A',
-        Email: email || undefined,
-        Phone: phone || undefined,
-        Title: title || undefined,
-        MailingCity: city || undefined,
-        Description: notesParts.join('\n') || undefined,
-      }
+      SalesforceService.buildContactPayload(fields)
     );
     return result.id;
+  }
+
+  static async updateContact(contactId, fields) {
+    await SalesforceService.request(
+      'PATCH',
+      `/services/data/${API_VERSION}/sobjects/Contact/${contactId}`,
+      SalesforceService.buildContactPayload(fields)
+    );
+    return contactId;
   }
 
   static async syncUserProfile(user, formData = {}) {
@@ -112,10 +134,7 @@ class SalesforceService {
       `${user.firstName} ${user.lastName}`.trim() ||
       user.email;
 
-    const accountId = await SalesforceService.createAccount(companyName);
-
-    const contactId = await SalesforceService.createContact({
-      accountId,
+    const contactFields = {
       firstName: user.firstName,
       lastName: user.lastName || user.email.split('@')[0],
       email: user.email,
@@ -124,7 +143,22 @@ class SalesforceService {
       city: formData.city || user.location,
       country: formData.country,
       description: formData.notes,
-    });
+    };
+
+    let accountId;
+    let contactId;
+
+    if (user.salesforceAccountId) {
+      accountId = await SalesforceService.updateAccount(user.salesforceAccountId, companyName);
+    } else {
+      accountId = await SalesforceService.createAccount(companyName);
+    }
+
+    if (user.salesforceContactId) {
+      contactId = await SalesforceService.updateContact(user.salesforceContactId, { ...contactFields, accountId });
+    } else {
+      contactId = await SalesforceService.createContact({ ...contactFields, accountId });
+    }
 
     return { accountId, contactId };
   }
