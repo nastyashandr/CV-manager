@@ -1,4 +1,4 @@
-import { Position, PositionAttribute, Attribute, CV, CVAttribute } from '../models/index.js';
+import { Position, PositionAttribute, Attribute, CV, CVAttribute, AccessRule } from '../models/index.js';
 
 function topValues(values, limit = 5) {
   const counts = new Map();
@@ -91,6 +91,11 @@ class AggregationService {
       order: [['order', 'ASC']],
     });
 
+    const accessRules = await AccessRule.findAll({
+      where: { positionId: position.id },
+      include: [{ model: Attribute, as: 'attribute' }],
+    });
+
     const publishedCvs = await CV.findAll({
       where: { positionId: position.id, status: 'published' },
       include: [{ model: CVAttribute, as: 'cvAttributes' }],
@@ -104,10 +109,17 @@ class AggregationService {
       return {
         name: pa.attribute.name,
         type: pa.attribute.type,
-        required: pa.required,
+        required: true,
         aggregate: aggregateByType(pa.attribute.type, values),
       };
     });
+
+    const accessRuleList = accessRules.map((r) => ({
+      attributeName: r.attribute?.name || null,
+      attributeType: r.attribute?.type || null,
+      operator: r.operator,
+      value: r.value,
+    }));
 
     return {
       position: {
@@ -117,6 +129,7 @@ class AggregationService {
       },
       cvCount: publishedCvs.length,
       attributes,
+      accessRules: accessRuleList,
       generatedAt: new Date().toISOString(),
     };
   }

@@ -16,6 +16,9 @@ class CourseProjectPosition(models.Model):
     attribute_ids = fields.One2many(
         'course_project.attribute', 'position_id', string='Attributes'
     )
+    access_rule_ids = fields.One2many(
+        'course_project.access_rule', 'position_id', string='Access Rules'
+    )
     attribute_count = fields.Integer(
         string='Attributes', compute='_compute_attribute_count'
     )

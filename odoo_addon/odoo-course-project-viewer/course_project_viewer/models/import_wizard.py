@@ -66,6 +66,7 @@ class CourseProjectImportWizard(models.TransientModel):
         if position:
             position.write(vals)
             position.attribute_ids.unlink()
+            position.access_rule_ids.unlink()
         else:
             position = Position.create(vals)
 
@@ -101,9 +102,25 @@ class CourseProjectImportWizard(models.TransientModel):
 
         position.write({'attribute_ids': attribute_lines})
 
+        access_rule_lines = []
+        for rule in data.get('accessRules') or []:
+            value = rule.get('value')
+            if isinstance(value, dict):
+                value_display = ', '.join(f"{k}: {v}" for k, v in value.items())
+            else:
+                value_display = str(value) if value is not None else ''
+            access_rule_lines.append((0, 0, {
+                'attribute_name': rule.get('attributeName') or '',
+                'attribute_type': rule.get('attributeType') or '',
+                'operator': rule.get('operator') or '',
+                'value_display': value_display,
+            }))
+
+        position.write({'access_rule_ids': access_rule_lines})
+
         _logger.info(
-            'Imported position %s (%s attributes) from %s',
-            position.name, len(attribute_lines), base,
+            'Imported position %s (%s attributes, %s access rules) from %s',
+            position.name, len(attribute_lines), len(access_rule_lines), base,
         )
 
         return {

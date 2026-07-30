@@ -116,7 +116,7 @@ class CvBuilderService {
       category: pa.attribute.category,
       type: pa.attribute.type,
       options: pa.attribute.options,
-      required: pa.required || false,
+      required: true,
       isBuiltin: pa.attribute.isBuiltin || false,
       isAccessRule: accessRuleAttributeIds.has(pa.attribute.id),
       isCandidateAdded: false,

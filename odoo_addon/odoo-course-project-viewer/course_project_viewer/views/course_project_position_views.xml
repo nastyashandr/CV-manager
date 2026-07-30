@@ -82,6 +82,16 @@
                 </form>
               </field>
             </page>
+            <page string="Access Rules">
+              <field name="access_rule_ids">
+                <tree editable="false" create="false" delete="false">
+                  <field name="attribute_name"/>
+                  <field name="attribute_type"/>
+                  <field name="operator"/>
+                  <field name="value_display"/>
+                </tree>
+              </field>
+            </page>
           </notebook>
         </sheet>
       </form>
