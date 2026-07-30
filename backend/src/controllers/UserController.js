@@ -72,7 +72,7 @@ class UserController {
     if (!user) throw ApiError.notFound('User not found');
 
     const trim = (v) => (typeof v === 'string' ? v.trim().slice(0, 500) : v);
-    const { companyName, phone, jobTitle, city, country, notes } = req.body;
+    const { companyName, phone, jobTitle, country, notes } = req.body;
 
     let result;
     try {
@@ -80,7 +80,6 @@ class UserController {
         companyName: trim(companyName),
         phone: trim(phone),
         jobTitle: trim(jobTitle),
-        city: trim(city),
         country: trim(country),
         notes: trim(notes),
       });

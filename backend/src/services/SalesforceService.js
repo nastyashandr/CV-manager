@@ -93,11 +93,7 @@ class SalesforceService {
     return accountId;
   }
 
-  static buildContactPayload({ accountId, firstName, lastName, email, phone, title, city, country, description }) {
-    const notesParts = [];
-    if (country) notesParts.push(`Country: ${country}`);
-    if (description) notesParts.push(description);
-
+  static buildContactPayload({ accountId, firstName, lastName, email, phone, title, country, description }) {
     return {
       AccountId: accountId,
       FirstName: firstName || undefined,
@@ -105,8 +101,8 @@ class SalesforceService {
       Email: email || undefined,
       Phone: phone || undefined,
       Title: title || undefined,
-      MailingCity: city || undefined,
-      Description: notesParts.join('\n') || undefined,
+      MailingCity: country || undefined,
+      Description: description || undefined,
     };
   }
 
@@ -140,7 +136,6 @@ class SalesforceService {
       email: user.email,
       phone: formData.phone,
       title: formData.jobTitle,
-      city: formData.city || user.location,
       country: formData.country,
       description: formData.notes,
     };

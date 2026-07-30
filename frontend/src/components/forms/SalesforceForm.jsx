@@ -10,7 +10,6 @@ const EMPTY = {
   companyName: "",
   phone: "",
   jobTitle: "",
-  city: "",
   country: "",
   notes: "",
 };
@@ -19,7 +18,6 @@ const LIMITS = {
   companyName: 80,
   phone: 20,
   jobTitle: 60,
-  city: 40,
   country: 40,
   notes: 500,
 };
@@ -32,7 +30,6 @@ const SANITIZERS = {
   companyName: sanitizeFreeText,
   phone: sanitizePhone,
   jobTitle: sanitizeFreeText,
-  city: sanitizeLetters,
   country: sanitizeLetters,
   notes: sanitizeFreeText,
 };
@@ -121,24 +118,14 @@ export default function SalesforceForm({ show, onHide, onSubmit }) {
             </Col>
           </Row>
 
-          <Row className="mb-3">
-            <Col>
-              <Form.Label>{t("salesforceCity")}</Form.Label>
-              <Form.Control
-                value={form.city}
-                onChange={set("city")}
-                maxLength={LIMITS.city}
-              />
-            </Col>
-            <Col>
-              <Form.Label>{t("salesforceCountry")}</Form.Label>
-              <Form.Control
-                value={form.country}
-                onChange={set("country")}
-                maxLength={LIMITS.country}
-              />
-            </Col>
-          </Row>
+          <Form.Group className="mb-3">
+            <Form.Label>{t("salesforceCountry")}</Form.Label>
+            <Form.Control
+              value={form.country}
+              onChange={set("country")}
+              maxLength={LIMITS.country}
+            />
+          </Form.Group>
 
           <Form.Group className="mb-3">
             <Form.Label>{t("salesforceNotes")}</Form.Label>
