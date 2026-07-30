@@ -19,7 +19,6 @@ import DataTable from "../components/common/DataTable.jsx";
 import LikeButton from "../components/common/LikeButton.jsx";
 import DiscussionPanel from "../components/common/DiscussionPanel.jsx";
 import PositionForm from "../components/forms/PositionForm.jsx";
-import PositionForm from "../components/forms/PositionForm.jsx";
 import ApiTokenModal from "../components/common/ApiTokenModal.jsx";
 import { fullName } from "../utils/formatters.js";
 
@@ -240,7 +239,6 @@ function EditPositionModal({ show, position, onHide, onSubmit, t }) {
 export default function PositionDetailPage() {
   const { id } = useParams();
   const [myCv, setMyCv] = useState(null);
-  const [editing, setEditing] = useState(false);
   const [showApiToken, setShowApiToken] = useState(false);
   const [editing, setEditing] = useState(false);
   const { user } = useAuth();
