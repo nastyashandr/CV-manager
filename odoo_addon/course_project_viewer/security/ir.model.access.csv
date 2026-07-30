@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_course_project_position_user,course_project.position.user,model_course_project_position,base.group_user,1,1,1,1
+access_course_project_attribute_user,course_project.attribute.user,model_course_project_attribute,base.group_user,1,1,1,1
+access_course_project_import_wizard_user,course_project.import_wizard.user,model_course_project_import_wizard,base.group_user,1,1,1,1

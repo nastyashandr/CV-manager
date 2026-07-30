@@ -9,6 +9,8 @@ router.get('/latest', PositionController.latest);
 router.get('/popular', PositionController.popular);
 router.get('/:id', AuthMiddleware.optional(), PositionController.getOne);
 router.get('/:id/cvs', AuthMiddleware.authenticate, AuthMiddleware.allow('recruiter'), PositionController.cvs);
+router.get('/:id/api-token', AuthMiddleware.authenticate, AuthMiddleware.allow('recruiter'), PositionController.getApiToken);
+router.post('/:id/api-token', AuthMiddleware.authenticate, AuthMiddleware.allow('recruiter'), PositionController.generateApiToken);
 router.post('/', AuthMiddleware.authenticate, AuthMiddleware.allow('recruiter'), PositionController.create);
 router.post('/:id/duplicate', AuthMiddleware.authenticate, AuthMiddleware.allow('recruiter'), PositionController.duplicate);
 router.put('/:id', AuthMiddleware.authenticate, AuthMiddleware.allow('recruiter'), PositionController.update);

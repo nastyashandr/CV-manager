@@ -1,0 +1,100 @@
+<odoo>
+  <record id="view_course_project_position_tree" model="ir.ui.view">
+    <field name="name">course_project.position.tree</field>
+    <field name="model">course_project.position</field>
+    <field name="arch" type="xml">
+      <tree create="false">
+        <field name="name"/>
+        <field name="cv_count"/>
+        <field name="attribute_count"/>
+        <field name="imported_at"/>
+        <field name="backend_url"/>
+      </tree>
+    </field>
+  </record>
+
+  <record id="view_course_project_position_form" model="ir.ui.view">
+    <field name="name">course_project.position.form</field>
+    <field name="model">course_project.position</field>
+    <field name="arch" type="xml">
+      <form create="false" edit="false">
+        <header>
+          <button name="action_reimport" type="object" string="Re-import"
+                  class="btn-primary"/>
+        </header>
+        <sheet>
+          <div class="oe_title">
+            <h1>
+              <field name="name"/>
+            </h1>
+          </div>
+          <group>
+            <group>
+              <field name="source_position_id"/>
+              <field name="backend_url"/>
+              <field name="cv_count"/>
+            </group>
+            <group>
+              <field name="imported_at"/>
+              <field name="attribute_count"/>
+            </group>
+          </group>
+          <field name="short_description"/>
+          <notebook>
+            <page string="Attributes">
+              <field name="attribute_ids">
+                <tree editable="false" create="false" delete="false">
+                  <field name="name"/>
+                  <field name="type"/>
+                  <field name="required"/>
+                  <field name="count"/>
+                  <field name="summary"/>
+                </tree>
+                <form create="false" edit="false" delete="false">
+                  <sheet>
+                    <group>
+                      <field name="name"/>
+                      <field name="type"/>
+                      <field name="required"/>
+                      <field name="count"/>
+                    </group>
+                    <group string="Numbers"
+                           attrs="{'invisible': [('type', '!=', 'number')]}">
+                      <field name="avg_value"/>
+                      <field name="min_value"/>
+                      <field name="max_value"/>
+                    </group>
+                    <group string="Dates"
+                           attrs="{'invisible': [('type', 'not in', ['date', 'period'])]}">
+                      <field name="min_date"/>
+                      <field name="max_date"/>
+                    </group>
+                    <group string="Yes/No"
+                           attrs="{'invisible': [('type', '!=', 'boolean')]}">
+                      <field name="true_count"/>
+                      <field name="false_count"/>
+                    </group>
+                    <group string="Most popular values"
+                           attrs="{'invisible': [('type', 'not in', ['string', 'text', 'select'])]}">
+                      <field name="top_values" nolabel="1" widget="text"/>
+                    </group>
+                  </sheet>
+                </form>
+              </field>
+            </page>
+          </notebook>
+        </sheet>
+      </form>
+    </field>
+  </record>
+
+  <record id="action_course_project_position" model="ir.actions.act_window">
+    <field name="name">Imported Positions</field>
+    <field name="res_model">course_project.position</field>
+    <field name="view_mode">tree,form</field>
+    <field name="help">
+      No positions imported yet. Use "Import Position" to pull aggregated
+      results from your CV Manager course project using an API token.
+    </field>
+  </record>
+</odoo>

@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import { Position, PositionAttribute, AccessRule, Attribute, CV } from '../models/index.js';
 import { sequelize } from '../models/index.js';
 import { QueryTypes } from 'sequelize';
@@ -247,6 +248,20 @@ class PositionController {
       type: QueryTypes.SELECT,
     });
     res.json(result.map(formatCvRow));
+  });
+
+  getApiToken = asyncHandler(async (req, res) => {
+    const position = await Position.findByPk(req.params.id);
+    if (!position) throw ApiError.notFound('Position not found');
+    res.json({ apiToken: position.apiToken || null });
+  });
+
+  generateApiToken = asyncHandler(async (req, res) => {
+    const position = await Position.findByPk(req.params.id);
+    if (!position) throw ApiError.notFound('Position not found');
+    position.apiToken = crypto.randomBytes(24).toString('hex');
+    await position.save();
+    res.json({ apiToken: position.apiToken });
   });
 }
 

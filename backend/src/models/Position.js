@@ -7,6 +7,12 @@ class Position extends Model {
     if (user.isRecruiter()) return true;
     return true;
   }
+
+  toJSON() {
+    const values = { ...this.get() };
+    delete values.apiToken;
+    return values;
+  }
 }
 
 Position.init({
@@ -18,6 +24,7 @@ Position.init({
   maxProjects: { type: DataTypes.INTEGER, allowNull: true, defaultValue: null },
   version: { type: DataTypes.INTEGER, defaultValue: 1 },
   createdById: { type: DataTypes.UUID, allowNull: true },
+  apiToken: { type: DataTypes.STRING, allowNull: true, unique: true },
 }, { sequelize, modelName: 'Position', tableName: 'positions', timestamps: true });
 
 export default Position;

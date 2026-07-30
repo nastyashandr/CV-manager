@@ -26,6 +26,8 @@ export class PositionsApi {
   static update(id, data) { return client.put(`/positions/${id}`, data); }
   static remove(id) { return client.delete(`/positions/${id}`); }
   static cvs(id) { return client.get(`/positions/${id}/cvs`); }
+  static getApiToken(id) { return client.get(`/positions/${id}/api-token`); }
+  static generateApiToken(id) { return client.post(`/positions/${id}/api-token`); }
 }
 
 export class UsersApi {

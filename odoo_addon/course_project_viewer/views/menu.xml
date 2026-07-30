@@ -1,0 +1,9 @@
+<odoo>
+  <menuitem id="menu_course_project_root" name="CV Manager Import" sequence="60"/>
+  <menuitem id="menu_course_project_positions" name="Imported Positions"
+            parent="menu_course_project_root"
+            action="action_course_project_position" sequence="10"/>
+  <menuitem id="menu_course_project_import" name="Import Position"
+            parent="menu_course_project_root"
+            action="action_course_project_import_wizard" sequence="20"/>
+</odoo>
