@@ -99,3 +99,7 @@ export class SearchApi {
     return client.get('/search', { q });
   }
 }
+
+export class SupportTicketApi {
+  static create(data) { return client.post('/support-tickets', data); }
+}

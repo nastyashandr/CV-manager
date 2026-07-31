@@ -19,6 +19,7 @@ import discussionRoutes from './routes/discussions.js';
 import statsRoutes from './routes/stats.js';
 import searchRoutes from './routes/search.js';
 import externalRoutes from './routes/external.js';
+import supportTicketRoutes from './routes/supportTickets.js';
 
 class Application {
   constructor() {
@@ -52,6 +53,7 @@ class Application {
     this.app.use('/api/stats', statsRoutes);
     this.app.use('/api/search', searchRoutes);
     this.app.use('/api/external', externalRoutes);
+    this.app.use('/api/support-tickets', supportTicketRoutes);
     this.app.use(errorHandler);
   }
 

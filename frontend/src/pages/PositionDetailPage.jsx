@@ -10,6 +10,7 @@ import Alert from "react-bootstrap/Alert";
 import { toast } from "react-toastify";
 import { PositionsApi, CvsApi } from "../api/resources.js";
 import { useAuth } from "../contexts/AuthContext.jsx";
+import { useSupportTicketContext } from "../contexts/SupportTicketContext.jsx";
 import { useLanguage } from "../contexts/LanguageContext.jsx";
 import { useLoadData } from "../hooks/useApi.js";
 import { useErrorHandler } from "../utils/errorHandler.js";
@@ -239,16 +240,22 @@ function EditPositionModal({ show, position, onHide, onSubmit, t }) {
 export default function PositionDetailPage() {
   const { id } = useParams();
   const [myCv, setMyCv] = useState(null);
-  const [showApiToken, setShowApiToken] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [showApiToken, setShowApiToken] = useState(false);
   const { user } = useAuth();
   const { t } = useLanguage();
   const { translateError } = useErrorHandler();
   const { data: position, load } = useLoadData(() => PositionsApi.get(id));
+  const { setPositionTitle, clearPositionTitle } = useSupportTicketContext();
 
   useEffect(() => {
     load();
   }, [id]);
+
+  useEffect(() => {
+    if (position?.title) setPositionTitle(position.title);
+    return () => clearPositionTitle();
+  }, [position?.title]);
 
   useEffect(() => {
     if (user?.role === "candidate") {
@@ -305,8 +312,6 @@ export default function PositionDetailPage() {
         onHide={() => setShowApiToken(false)}
         positionId={position.id}
       />
-
-      <Tabs defaultActiveKey="overview" className="mb-3"></Tabs>
 
       <Tabs defaultActiveKey="overview" className="mb-3">
         <Tab eventKey="overview" title={t("overview")}>

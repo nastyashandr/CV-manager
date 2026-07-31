@@ -8,6 +8,7 @@ import Form from "react-bootstrap/Form";
 import { CvsApi } from "../api/resources.js";
 import { useAuth } from "../contexts/AuthContext.jsx";
 import { useLanguage } from "../contexts/LanguageContext.jsx";
+import { useSupportTicketContext } from "../contexts/SupportTicketContext.jsx";
 import { useErrorHandler } from "../utils/errorHandler.js";
 import { useAutoSave } from "../hooks/useAutoSave.js";
 import LoadingSpinner from "../components/common/LoadingSpinner.jsx";
@@ -260,6 +261,7 @@ export default function CVPage() {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { translateError } = useErrorHandler();
+  const { setPositionTitle, clearPositionTitle } = useSupportTicketContext();
 
   const load = useCallback(async () => {
     try {
@@ -277,6 +279,11 @@ export default function CVPage() {
   useEffect(() => {
     load();
   }, [load]);
+
+  useEffect(() => {
+    if (cv?.position?.title) setPositionTitle(cv.position.title);
+    return () => clearPositionTitle();
+  }, [cv?.position?.title]);
 
   const updateProjects = async (projectIds) => {
     if (updatingProjects) return;
