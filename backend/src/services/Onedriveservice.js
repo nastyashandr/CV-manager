@@ -1,3 +1,4 @@
+//
 const TOKEN_URL = 'https://login.microsoftonline.com/consumers/oauth2/v2.0/token';
 const GRAPH_BASE = 'https://graph.microsoft.com/v1.0';
 const SCOPE = 'offline_access Files.ReadWrite';
