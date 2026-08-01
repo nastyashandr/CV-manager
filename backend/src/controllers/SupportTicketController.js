@@ -1,7 +1,7 @@
 import { User } from '../models/index.js';
 import ApiError from '../utils/ApiError.js';
 import asyncHandler from '../utils/asyncHandler.js';
-import DropboxService from '../services/DropboxService.js';
+import OneDriveService from '../services/OneDriveService.js';
 
 const VALID_PRIORITIES = ['High', 'Average', 'Low'];
 
@@ -28,7 +28,7 @@ class SupportTicketController {
     const fileName = `ticket-${Date.now()}-${req.user.id.slice(0, 8)}.json`;
 
     try {
-      await DropboxService.uploadJson(fileName, ticket);
+      await OneDriveService.uploadJson(fileName, ticket);
     } catch (err) {
       throw new ApiError(502, `Failed to upload ticket: ${err.message}`);
     }
