@@ -7,8 +7,7 @@ import { SupportTicketApi } from "../../api/resources.js";
 import { useLanguage } from "../../contexts/LanguageContext.jsx";
 import { useSupportTicketContext } from "../../contexts/SupportTicketContext.jsx";
 import { useErrorHandler } from "../../utils/errorHandler.js";
-
-const PRIORITIES = ["High", "Average", "Low"];
+import PrioritySelect from "./PrioritySelect.jsx";
 
 export default function SupportTicketModal({ show, onHide }) {
   const [summary, setSummary] = useState("");
@@ -71,16 +70,7 @@ export default function SupportTicketModal({ show, onHide }) {
 
           <Form.Group className="mb-3">
             <Form.Label>{t("supportTicketPriority")}</Form.Label>
-            <Form.Select
-              value={priority}
-              onChange={(e) => setPriority(e.target.value)}
-            >
-              {PRIORITIES.map((p) => (
-                <option key={p} value={p}>
-                  {t(`supportTicketPriority${p}`)}
-                </option>
-              ))}
-            </Form.Select>
+            <PrioritySelect value={priority} onChange={setPriority} t={t} />
           </Form.Group>
         </Modal.Body>
         <Modal.Footer>
