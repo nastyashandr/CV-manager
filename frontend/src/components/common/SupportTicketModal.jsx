@@ -7,7 +7,7 @@ import { SupportTicketApi } from "../../api/resources.js";
 import { useLanguage } from "../../contexts/LanguageContext.jsx";
 import { useSupportTicketContext } from "../../contexts/SupportTicketContext.jsx";
 import { useErrorHandler } from "../../utils/errorHandler.js";
-import PrioritySelect from "./PrioritySelect.jsx";
+import CustomSelect from "./CustomSelect.jsx";
 
 export default function SupportTicketModal({ show, onHide }) {
   const [summary, setSummary] = useState("");
@@ -16,6 +16,12 @@ export default function SupportTicketModal({ show, onHide }) {
   const { t } = useLanguage();
   const { positionTitle } = useSupportTicketContext();
   const { translateError } = useErrorHandler();
+
+  const priorityOptions = [
+    { value: "High", label: t("supportTicketPriorityHigh") },
+    { value: "Average", label: t("supportTicketPriorityAverage") },
+    { value: "Low", label: t("supportTicketPriorityLow") },
+  ];
 
   const submit = async (e) => {
     e.preventDefault();
@@ -70,7 +76,11 @@ export default function SupportTicketModal({ show, onHide }) {
 
           <Form.Group className="mb-3">
             <Form.Label>{t("supportTicketPriority")}</Form.Label>
-            <PrioritySelect value={priority} onChange={setPriority} t={t} />
+            <CustomSelect
+              value={priority}
+              options={priorityOptions}
+              onChange={setPriority}
+            />
           </Form.Group>
         </Modal.Body>
         <Modal.Footer>
